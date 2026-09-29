@@ -385,6 +385,59 @@ The label incorrectly displays **"Coming soon"**, which conflicts with the "Page
 Update the label text on the 404 template component to reflect its actual purpose (e.g. replace "Coming soon" with "Error" or "404"), decoupling it from any "Coming Soon" component if shared.
 
 
+# BUG-007 — Registration form accepts invalid email address (consecutive dots and space)
+
+| Field | Details |
+|---|---|
+| Bug ID | BUG-007 |
+| Module | CPB & CCS Registration Form (Homepage) |
+| URL | https://pmtac.com/ |
+| Severity | Medium |
+| Priority | Medium |
+| Type | Functional / Input Validation |
+| Status | Open |
+| Reported by | Muhammad Affan |
+| Date reported | 2026-09-29 |
+| Environment | Google Chrome 153.0.8010.50 / Windows 11 Pro (Build 26200) / Dell Latitude 5400 |
+
+## Description
+The registration form accepts an invalid email address and shows a success message. The address contains consecutive dots (..) and a space before @. Neither is allowed in a valid email address (RFC 5322), and mail providers such as Gmail cannot create such an address.
+
+## Steps to Reproduce
+1. Open https://pmtac.com/ and scroll to the "Register for PMTAC's CPB & CCS Training Programs" form.
+2. Fill in First Name, Last Name and Phone with valid data.
+3. Select a Program and a Preferred Training Schedule.
+4. In the Email field, enter exactly: user.. @gmail.com
+5. Click Send.
+
+## Expected Result
+The form shows a validation error (e.g. "Please enter a valid email address") and does not submit.
+
+## Actual Result
+The form submits and displays: "Your submission was successful".
+
+## Impact
+- Invalid emails are stored in the system.
+- Follow-up emails to applicants will bounce or never arrive, so leads can be lost.
+- Indicates weak or missing server-side email validation.
+
+## Additional Test Results (same form)
+| Input | Expected | Actual | Result |
+|---|---|---|---|
+| user..@gmail.com | Reject | Accept | Fail |
+
+## Suggested Fix
+Add server-side email validation (not only browser-side), rejecting spaces, consecutive dots, and leading/trailing dots in the local part.
+
+## Attachments
+
+https://github.com/user-attachments/assets/282b439a-1f4f-4679-a20c-ed4f10979fca
+
+
+## References
+- RFC 5322, Internet Message Format (local-part syntax)
+
+
 
 
 
