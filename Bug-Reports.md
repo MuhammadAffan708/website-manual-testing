@@ -437,6 +437,106 @@ https://github.com/user-attachments/assets/282b439a-1f4f-4679-a20c-ed4f10979fca
 ## References
 - RFC 5322, Internet Message Format (local-part syntax)
 
+- # BUG-008: Poor mobile Largest Contentful Paint (LCP) on homepage
+
+| Field | Details |
+|---|---|
+| **Bug ID** | BUG-008 |
+| **Project / Site** | Whitebox: Custom Logistics & Transportation Software |
+| **URL** | https://whiteboxtech.net/ |
+| **Module** | Homepage: Performance |
+| **Type** | Non-functional (Performance) |
+| **Severity** | Medium |
+| **Priority** | High |
+| **Status** | Open |
+| **Reported by** | Muhammad Affan |
+| **Date reported** | 2026-09-30 |
+| **Found by** | Lighthouse audit (Chrome DevTools) |
+
+---
+
+## Summary
+The homepage loads slowly on mobile. The Largest Contentful Paint (LCP) is **6.0 s**, well above Google's "good" threshold of 2.5 s, and the Lighthouse Performance score is **52/100**. Users on mobile see the main content late, which can increase bounce rate and hurt search ranking.
+
+## Environment
+| Item | Value |
+|---|---|
+| Browser | Google Chrome (desktop) |
+| Tool | Lighthouse in Chrome DevTools |
+| Mode | Navigation |
+| Device | Mobile emulation |
+| OS | Windows |
+| Date / time | 2026-09-30, 01:34 |
+| Note | Run in a regular window; browser extensions may have affected the result |
+
+## Steps to Reproduce
+1. Open Google Chrome and go to `https://whiteboxtech.net/`.
+2. Press **F12** to open DevTools.
+3. Open the **Lighthouse** tab.
+4. Select **Mode: Navigation** and **Device: Mobile**.
+5. Tick **Performance** (and the other categories).
+6. Click **Analyze page load**.
+7. Read the Performance score and the Metrics section.
+
+## Expected Result
+- Performance score of **90 or above**.
+- LCP of **2.5 s or less**.
+- FCP of **1.8 s or less**.
+
+## Actual Result
+| Metric | Actual | Target | Status |
+|---|---|---|---|
+| Performance score | **52** | ≥ 90 | Fail |
+| Largest Contentful Paint (LCP) | **6.0 s** | ≤ 2.5 s | Fail |
+| First Contentful Paint (FCP) | **1.9 s** | ≤ 1.8 s | Fail (marginal) |
+
+Lighthouse **Diagnostics** from the same run:
+
+| Audit | Result | Status |
+|---|---|---|
+| Minimize main-thread work | **4.1 s** | Fail |
+| Reduce unused JavaScript | Est. savings of **513 KiB** | Fail |
+| Avoid enormous network payloads | Total size **4,774 KiB** | Warning |
+| Avoid long main-thread tasks | **10** long tasks found | Informational |
+
+Other Lighthouse scores from the same run, for reference:
+
+| Category | Score |
+|---|---|
+| Accessibility | 93 |
+| Best Practices | 96 |
+| SEO | 100 |
+
+## Impact
+- Slow perceived load on mobile devices and slower connections.
+- Higher chance that users leave before the hero content appears.
+- Poor Core Web Vitals (LCP) can negatively affect search ranking.
+
+## Suspected Cause
+The diagnostics point mainly to **heavy JavaScript and a large page weight**, not only the hero image:
+- 4.1 s of main-thread work and 10 long tasks suggest the browser is busy running scripts, which delays rendering of the main content.
+- About 513 KiB of JavaScript is unused on load.
+- The total page size of 4,774 KiB is very large for a mobile visit. Images likely account for part of it, but this is not yet confirmed.
+
+Still to confirm: the "Largest Contentful Paint element" entry in Diagnostics, and the largest files in the DevTools **Network** tab (sort by Size).
+
+## Suggested Fix (for the development team)
+- Remove or code-split unused JavaScript and load non-critical scripts later (defer / lazy-load).
+- Break up long tasks so the main thread is not blocked.
+- Compress and resize images; serve WebP or AVIF.
+- Preload the LCP image and do not lazy-load it.
+- Re-run Lighthouse to confirm LCP ≤ 2.5 s.
+
+## Attachments
+- Screenshot: Lighthouse mobile report showing Performance 52 and LCP 6.0 s
+  <img width="1920" height="1080" alt="Screenshot 2026-09-30 014035" src="https://github.com/user-attachments/assets/6f18831e-0a04-4fba-a715-a1858a947f64" />
+
+## Additional Notes
+- Lighthouse results vary between runs. Re-test 2 to 3 times in an Incognito window to confirm the result is consistent.
+- Also re-test on Desktop mode and compare.
+
+
+
 
 
 
